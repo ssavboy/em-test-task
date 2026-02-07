@@ -18,8 +18,9 @@
 ```bash
 git clone https://github.com/ssavboy/em-test-task.git
 cd em-test-task
+cp .env.example .env
 docker compose up -d
-curl http://localhost
+curl http://localhost/
 ```
 
 ## Структура проекта
