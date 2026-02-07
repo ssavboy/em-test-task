@@ -1,22 +1,25 @@
-FROM python:3.11-slim
+ARG PYTHON_VERSION=3.11
 
+FROM python:${PYTHON_VERSION}-slim
+
+# Устанавливаем curl для healthcheck и очищаем кэш
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Создаем системную группу(с низким UID/GID)
+# системного пользователя(без домашней дирректории и минимальной конфигурацией)
+# и назначаем ему группу
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 WORKDIR /app
 
 COPY app.py .
 
+# Меняем владельца/группу для всего содержимого app/ и делаем app.py исполняемым
 RUN chown -R appuser:appuser /app && chmod +x app.py
 
+# Переключаемся на appuser, все последующие команды выполняются от appuser
 USER appuser
-
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import http.client; \
-    conn = http.client.HTTPConnection('localhost', 8080); \
-    conn.request('GET', '/health'); \
-    res = conn.getresponse(); \
-    exit(0 if res.status == 200 else 1)"
 
 CMD ["python", "-u", "app.py"]

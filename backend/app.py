@@ -14,7 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class HealthHTTPRequestHandler(BaseHTTPRequestHandler):
+class MainHTTPRequestHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         if self.path == '/health':
@@ -47,7 +47,7 @@ class HealthHTTPRequestHandler(BaseHTTPRequestHandler):
 
 def run_server(port=8080, host='0.0.0.0'):
     server_address = (host, port)
-    httpd = HTTPServer(server_address, HealthHTTPRequestHandler)
+    httpd = HTTPServer(server_address, MainHTTPRequestHandler)
     
     logger.info('='*60)
     logger.info('Starting HTTP server on %s:%d', host, port)
