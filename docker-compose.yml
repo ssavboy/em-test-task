@@ -1,10 +1,11 @@
 services:
   backend:
-    image: backend:${IMAGE_VERSION:-latest}
     build:
       context: ./backend
       args:
         - PYTHON_VERSION=${PYTHON_VERSION:-3.11}
+    image: backend:${IMAGE_VERSION:-latest}
+    pull_policy: never
     container_name: em_backend
     expose:
       - "8080"
@@ -12,12 +13,12 @@ services:
       - app_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "-s", "--max-time", "3", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "-s", "--max-time", "3", "http://em_backend:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
-  
+
   nginx:
     image: nginx:${NGINX_VERSION:-1.25}-alpine
     container_name: em_nginx
@@ -32,12 +33,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/nginx-health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://em_nginx/nginx-health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
-  
+
 networks:
   app_network:
     driver: bridge
